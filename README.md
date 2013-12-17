@@ -1,2 +1,4 @@
-presence-analyzer-kmaleszka
-===========================
+Presence Analyzer
+=================
+
+Calculate and show employees presence statistics.
