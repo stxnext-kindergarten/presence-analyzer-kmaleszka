@@ -62,11 +62,15 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
+        self.assertIsInstance(data, list)
         self.assertEqual(len(data), 7)
         for item in zip(data, self.weekdays):
-            weekday_header = item[0][0]
+            weekday = item[0]
             weekday_name = item[1]
-            self.assertEqual(weekday_header, weekday_name)
+            self.assertIsInstance(weekday, list, msg=str(item))
+            self.assertEqual(len(weekday), 2, msg=str(item))
+            self.assertEqual(weekday[0], weekday_name, msg=str(item))
+            self.assertIsInstance(weekday[1], (int, float), msg=str(item))
 
     def test_api_presence_weekday(self):
         """
@@ -76,13 +80,17 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
+        self.assertIsInstance(data, list)
         self.assertEqual(len(data), 8)
         header = data[0]
         self.assertListEqual(header, ['Weekday', 'Presence (s)'])
         for item in zip(data[1:], self.weekdays):
-            weekday_header = item[0][0]
+            weekday = item[0]
             weekday_name = item[1]
-            self.assertEqual(weekday_header, weekday_name)
+            self.assertIsInstance(weekday, list, msg=str(item))
+            self.assertEqual(len(weekday), 2, msg=str(item))
+            self.assertEqual(weekday[0], weekday_name, msg=str(item))
+            self.assertIsInstance(weekday[1], (int, float), msg=str(item))
 
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
@@ -122,10 +130,11 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         data = utils.get_data()
         for user in data.itervalues():
             current_user = utils.group_by_weekday(user)
-            self.assertIsInstance(current_user, dict)
-            self.assertItemsEqual(current_user.keys(), [x for x in range(7)])
+            self.assertIsInstance(current_user, dict, msg=str(user))
+            self.assertItemsEqual(current_user.keys(),
+                                  [x for x in range(7)], msg=str(user))
             for item in current_user.itervalues():
-                self.assertIsInstance(item, list)
+                self.assertIsInstance(item, list, msg=str(user))
         sample_user = utils.group_by_weekday(data[10])
         self.assertItemsEqual(sample_user[1], [30047])
 
@@ -133,9 +142,15 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         """
         Test amount of second since midnight.
         """
-        sample_time = datetime.time(00, 00, 20)
+        sample_time = datetime.time()
         result = utils.seconds_since_midnight(sample_time)
-        self.assertEqual(result, 20)
+        self.assertEqual(result, 0)
+        sample_time = datetime.time(16, 44, 33)
+        result = utils.seconds_since_midnight(sample_time)
+        self.assertEqual(result, 60273)
+        sample_time = datetime.time(23, 59, 59)
+        result = utils.seconds_since_midnight(sample_time)
+        self.assertEqual(result, 86399)
 
     def test_interval(self):
         """
@@ -145,13 +160,23 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         end = datetime.time(10, 20, 00)
         result = utils.interval(start, end)
         self.assertEqual(result, 2400)
+        result = utils.interval(end, start)
+        self.assertEqual(result, -2400)
+        result = utils.interval(start, start)
+        self.assertEqual(result, 0)
+        start = datetime.time(23, 59, 59)
+        end = datetime.time(0, 0, 0)
+        result = utils.interval(start, end)
+        self.assertEqual(result, -86399)
+        result = utils.interval(end, start)
+        self.assertEqual(result, 86399)
 
     def test_mean(self):
         """
         Test arithmetic mean.
         """
-        result = utils.mean([1, 2, 3, 4])
-        self.assertEqual(result, 2.5)
+        result = utils.mean([1, 2, 3, 4, 4.5, 6.7])
+        self.assertEqual(result, 3.533333333333333)
         result = utils.mean([])
         self.assertEqual(result, 0)
 
