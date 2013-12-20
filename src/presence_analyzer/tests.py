@@ -131,8 +131,8 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         for user in data.itervalues():
             current_user = utils.group_by_weekday(user)
             self.assertIsInstance(current_user, dict, msg=str(user))
-            self.assertItemsEqual(current_user.keys(),
-                                  [x for x in range(7)], msg=str(user))
+            self.assertItemsEqual(current_user.keys(), range(7), 
+                                  msg=str(user))
             for item in current_user.itervalues():
                 self.assertIsInstance(item, list, msg=str(user))
         sample_user = utils.group_by_weekday(data[10])
@@ -176,7 +176,7 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         Test arithmetic mean.
         """
         result = utils.mean([1, 2, 3, 4, 4.5, 6.7])
-        self.assertEqual(result, 3.533333333333333)
+        self.assertAlmostEqual(result, 3.5333, places=4)
         result = utils.mean([])
         self.assertEqual(result, 0)
 
