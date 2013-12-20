@@ -131,7 +131,7 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         for user in data.itervalues():
             current_user = utils.group_by_weekday(user)
             self.assertIsInstance(current_user, dict, msg=str(user))
-            self.assertItemsEqual(current_user.keys(), range(7), 
+            self.assertItemsEqual(current_user.keys(), range(7),
                                   msg=str(user))
             for item in current_user.itervalues():
                 self.assertIsInstance(item, list, msg=str(user))
