@@ -92,6 +92,25 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             self.assertEqual(weekday[0], weekday_name, msg=str(item))
             self.assertIsInstance(weekday[1], (int, float), msg=str(item))
 
+    def test_api_presence_start_end(self):
+        """
+        Test presence start/end.
+        """
+        resp = self.client.get('/api/v1/presence_start_end/10')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content_type, 'application/json')
+        data = json.loads(resp.data)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 5)
+        for item in zip(data, self.weekdays):
+            weekday = item[0]
+            weekday_name = item[1]
+            self.assertIsInstance(weekday, list, msg=str(item))
+            self.assertEqual(len(weekday), 3, msg=str(item))
+            self.assertEqual(weekday[0], weekday_name, msg=str(item))
+            self.assertIsInstance(weekday[1], (int, float), msg=str(item))
+            self.assertIsInstance(weekday[2], (int, float), msg=str(item))
+
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
     """
@@ -179,6 +198,23 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         self.assertAlmostEqual(result, 3.5333, places=4)
         result = utils.mean([])
         self.assertEqual(result, 0)
+
+    def test_group_by_start_end(self):
+        """
+        Test grouping user time by start/end.
+        """
+        data = utils.get_data()
+        for user in data.itervalues():
+            current_user = utils.group_by_start_end(user)
+            self.assertIsInstance(current_user, dict, msg=str(user))
+            self.assertEqual(len(current_user), 7, msg=str(user))
+            self.assertItemsEqual(current_user.keys(), range(7),
+                                  msg=str(current_user))
+            for item in current_user.itervalues():
+                self.assertIsInstance(item, dict, msg=str(item))
+                self.assertEqual(len(item), 2)
+                self.assertItemsEqual(item.keys(), ['start_list', 'end_list'],
+                                      msg=str(item))
 
 
 def suite():
