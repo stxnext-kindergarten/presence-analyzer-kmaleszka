@@ -1,0 +1,60 @@
+{% set links = [(url_for('presence_weekday_page'), 'Presence by weekday'),
+                (url_for('mean_time_weekday_page'), 'Presence mean time'),
+                (url_for('presence_start_end_page'), 'Presence start-end')] %}
+
+{%- macro print_links(selected=1) %}
+    <ul>
+    {% for link in links %}
+        {% if selected != loop.index %}
+            <li><a href={{ link[0] }}>{{ link[1] }}</a></li>
+        {% else %}
+            <li id="selected"><a href={{ link[0] }}>{{ link[1] }}</a></li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+{% endmacro -%}
+
+<!doctype html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+    <title>Presence analyzer</title>
+    <meta name="keywords" content="" />
+    <meta name="description" content=""/>
+    <meta name="author" content="STX Next sp. z o.o."/>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0">
+    
+    {% block css %}
+    <link href="{{ url_for('static', filename='css/normalize.css') }}" media="all" rel="stylesheet" type="text/css" />
+    <link href="{{ url_for('static', filename='css/base.css') }}" media="all" rel="stylesheet" type="text/css" />
+    {% endblock %}
+
+    {% block javascript %}
+    {% endblock %}
+</head>
+
+<body>
+    <div id="main">
+        <div id="header">
+            <h1>Presence analyzer</h1>
+            {% block links %}
+                {{ print_links() }}
+            {% endblock %}
+        </div>
+        {% block content %}
+        <div id="content">
+        <h2>{% block content_header %}{% endblock %}</h2>
+        <p>
+            <select id="user_id" style="display: none">
+                <option value="">--</option>
+            </select>
+            <div id="chart_div" style="display: none">
+            </div>
+            <div id="loading">
+                <img src="{{ url_for('static', filename='img/loading.gif') }}" />
+            </div>
+        </p>
+        </div>
+        {% endblock %}
+    </div>
+</body>
