@@ -88,4 +88,4 @@ def presence_start_end_view(user_id):
         start = mean(presence_dict['start_list'])
         end = mean(presence_dict['end_list'])
         result.append([calendar.day_abbr[weekday], start, end])
-    return result[:5]
+    return result
