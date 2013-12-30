@@ -97,3 +97,25 @@ def mean(items):
     Calculates arithmetic mean. Returns zero for empty lists.
     """
     return float(sum(items)) / len(items) if len(items) > 0 else 0
+
+
+def group_by_start_end(user):
+    """
+    Groups presence entries by weekday and start/end time.
+
+    It creates dictionary like this:
+
+    {
+     0: {'start_list':[30100,  ...], 'end_list': [20130, ...]},
+     ...
+     6: {'start_list': [12301, ...], 'end_list': [12312, ...]}
+    }
+    """
+    result = {i: {'start_list': [], 'end_list': []} for i in range(7)}
+    for date in user:
+        weekday = datetime.weekday(date)
+        start = seconds_since_midnight(user[date]['start'])
+        end = seconds_since_midnight(user[date]['end'])
+        result[weekday]['start_list'].append(start)
+        result[weekday]['end_list'].append(end)
+    return result
