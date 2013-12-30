@@ -38,6 +38,14 @@ def presence_weekday_page():
     return render_template('presence_weekday.html')
 
 
+@app.route('/presence_start_end')
+def presence_start_end_page():
+    """
+    Renders start-end presences page.
+    """
+    return render_template('presence_start_end.html')
+
+
 @app.route('/api/v1/users', methods=['GET'])
 @jsonify
 def users_view():

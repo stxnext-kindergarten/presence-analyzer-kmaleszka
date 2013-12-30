@@ -1,7 +1,7 @@
 {% extends "presence_base.html" %}
 
 {% block javascript %}
-<script src="/static/js/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
     google.load("visualization", "1", {packages:["corechart"], 'language': 'pl'});
@@ -13,7 +13,7 @@
     (function($) {
         $(document).ready(function(){
             var loading = $('#loading');
-            $.getJSON("/api/v1/users", function(result) {
+            $.getJSON("{{ url_for('users_view') }}", function(result) {
                 var dropdown = $("#user_id");
                 $.each(result, function(item) {
                     dropdown.append($("<option />").val(this.user_id).text(this.name));
@@ -27,7 +27,7 @@
                 if(selected_user) {
                     loading.show();
                     chart_div.hide();
-                    $.getJSON("/api/v1/presence_weekday/"+selected_user, function(result) {
+                    $.getJSON("{{ url_for('presence_weekday_view', user_id='0') }}" + selected_user, function(result) {
                         var data = google.visualization.arrayToDataTable(result);
                         var options = {};
                         chart_div.show();

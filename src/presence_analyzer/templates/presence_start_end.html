@@ -4,7 +4,7 @@
 <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
-    google.load("visualization", "1", {packages:["corechart"], 'language': 'pl'});
+    google.load("visualization", "1", {packages:["corechart", "timeline"], 'language': 'pl'});
 </script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/parseInterval.js') }}"></script>
 <script type="text/javascript">
@@ -25,37 +25,39 @@
                 if(selected_user) {
                     loading.show();
                     chart_div.hide();
-                    $.getJSON("{{url_for('mean_time_weekday_view', user_id='0') }}" + selected_user, function(result) {
+                    $.getJSON("{{ url_for('presence_start_end_view', user_id='0') }}" + selected_user, function(result) {
                         $.each(result, function(index, value) {
                             value[1] = parseInterval(value[1]);
+                            value[2] = parseInterval(value[2]);
                         });
                         console.log(result);
                         var data = new google.visualization.DataTable();
                         data.addColumn('string', 'Weekday');
-                        data.addColumn('datetime', 'Mean time (h:m:s)');
+                        data.addColumn({ type: 'datetime', id: 'Start' });
+                        data.addColumn({ type: 'datetime', id: 'End' });
                         data.addRows(result);
                         var options = {
                             hAxis: {title: 'Weekday'}
                         };
                         var formatter = new google.visualization.DateFormat({pattern: 'HH:mm:ss'});
                         formatter.format(data, 1);
+                        formatter.format(data, 2);
 
-                        
                         chart_div.show();
                         loading.hide();
-                        var chart = new google.visualization.ColumnChart(chart_div[0]);
+                        var chart = new google.visualization.Timeline(chart_div[0]);
                         chart.draw(data, options);
                     });
+
                 }
             });
         });
     })(jQuery);
 </script>
 {% endblock %}
-
 {% block links %}
-	{{ print_links(selected=2) }}
+	{{ print_links(selected=3) }}
 {% endblock %}
 {% block content_header %}
-Presence mean time by weekday
+Presence by start-end weekday
 {% endblock %}

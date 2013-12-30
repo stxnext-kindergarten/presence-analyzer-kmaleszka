@@ -28,6 +28,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
         self.client = main.app.test_client()
         self.weekdays = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+        self.pageTitle = '<title>Presence analyzer</title>'
 
     def tearDown(self):
         """
@@ -49,6 +50,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         resp = self.client.get('/presence_weekday')
         self.assertEqual(resp.status_code, 200)
+        self.assertIn(self.pageTitle, resp.get_data())
 
     def test_mean_time_weekday_page(self):
         """
@@ -56,6 +58,15 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         resp = self.client.get('/mean_time_weekday')
         self.assertEqual(resp.status_code, 200)
+        self.assertIn(self.pageTitle, resp.get_data())
+
+    def test_presence_start_end_page(self):
+        """
+        Test start-end page render.
+        """
+        resp = self.client.get('/presence_start_end')
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(self.pageTitle, resp.get_data())
 
     def test_api_users(self):
         """
