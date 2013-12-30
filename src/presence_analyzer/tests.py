@@ -101,7 +101,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
         self.assertIsInstance(data, list)
-        self.assertEqual(len(data), 5)
+        self.assertEqual(len(data), 7)
         for item in zip(data, self.weekdays):
             weekday = item[0]
             weekday_name = item[1]
