@@ -27,10 +27,12 @@ setup(
     install_requires=[
         'setuptools',
         'Flask',
+        'lxml',
     ],
     entry_points="""
     [console_scripts]
     flask-ctl = presence_analyzer.script:run
+    add-cron-entry = presence_analyzer.script:create_cron_entry
 
     [paste.app_factory]
     main = presence_analyzer.script:make_app

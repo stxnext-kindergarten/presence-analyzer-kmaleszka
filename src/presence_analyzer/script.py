@@ -111,3 +111,13 @@ def run():
         _serve('stop', dry_run=dry_run)
 
     werkzeug.script.run()
+
+
+# bin/add-cron-entry
+def create_cron_entry():
+    """
+    Creates crontab entry.
+    """
+    app = make_app()
+    os.system('(crontab -l; echo "00 06 * * * wget %s -O %s") | crontab' %
+              (app.config['XML_LOCATION'], app.config['USERS_XML']))
