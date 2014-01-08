@@ -46,15 +46,26 @@ def presence_start_end_page():
     return render_template('presence_start_end.html')
 
 
+@app.route('/api/v2/users', methods=['GET'])
+@jsonify
+def users_view_v2():
+    """
+    Users listing for dropdown, new api.
+    """
+    data = get_users_from_xml()
+    return [{'user_id': i, 'name': data[i]['name'],
+            'avatar_url': data[i]['avatar_url']}
+            for i in data.keys()]
+
+
 @app.route('/api/v1/users', methods=['GET'])
 @jsonify
 def users_view():
     """
     Users listing for dropdown.
     """
-    data = get_users_from_xml()
-    return [{'user_id': i, 'name': data[i]['name'],
-            'avatar_url': data[i]['avatar_url']}
+    data = get_data()
+    return [{'user_id': i, 'name': 'User {0}'.format(str(i))}
             for i in data.keys()]
 
 

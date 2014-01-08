@@ -4,10 +4,15 @@
 
 import os
 import sys
+import shutil
+import urllib2
 from functools import partial
 
 import paste.script.command
 import werkzeug.script
+
+import logging
+log = logging.getLogger(__name__)
 
 etc = partial(os.path.join, 'parts', 'etc')
 
@@ -113,11 +118,15 @@ def run():
     werkzeug.script.run()
 
 
-# bin/add-cron-entry
-def create_cron_entry():
+# bin/get-xml
+def get_xml():
     """
-    Creates crontab entry.
+    Get user xml file from server.
     """
     app = make_app()
-    os.system('(crontab -l; echo "00 06 * * * wget %s -O %s") | crontab' %
-              (app.config['XML_LOCATION'], app.config['USERS_XML']))
+    try:
+        src_url = urllib2.urlopen(app.config['XML_LOCATION'], data='text/xml')
+        dst_file = open(app.config['USERS_XML'], 'w')
+        shutil.copyfileobj(src_url, dst_file, length=-1)
+    except (IOError, urllib2.URLError, urllib2.HTTPError):
+        log.info('Error downloading xml file.', exc_info=True)

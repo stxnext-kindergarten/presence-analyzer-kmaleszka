@@ -13,7 +13,7 @@
         $(document).ready(function(){
             var loading = $('#loading');
             var users_json = null;
-            $.getJSON("{{ url_for('users_view') }}", function(result) {
+            $.getJSON("{{ url_for('users_view_v2') }}", function(result) {
                 var dropdown = $("#user_id");
                 users_json = result;
                 $.each(result, function(item) {

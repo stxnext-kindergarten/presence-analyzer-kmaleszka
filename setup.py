@@ -32,8 +32,7 @@ setup(
     entry_points="""
     [console_scripts]
     flask-ctl = presence_analyzer.script:run
-    add-cron-entry = presence_analyzer.script:create_cron_entry
-
+    get-xml = presence_analyzer.script:get_xml
     [paste.app_factory]
     main = presence_analyzer.script:make_app
     debug = presence_analyzer.script:make_debug
