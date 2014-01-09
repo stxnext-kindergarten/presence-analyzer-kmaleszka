@@ -6,19 +6,18 @@ Helper functions used in views.
 import csv
 from json import dumps
 from functools import wraps
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import threading
+from urlparse import urljoin
 
 from flask import Response
+from lxml import etree
 
 from presence_analyzer.main import app
 
 import logging
 log = logging.getLogger(__name__)  # pylint: disable-msg=C0103
-
-user_data_cache = None
-cache_last_update = 0
 
 
 def jsonify(function):
@@ -32,31 +31,68 @@ def jsonify(function):
     return inner
 
 
+def get_users_from_xml():
+    """
+    Extracts user name and avatar's url (with hostname, port and protocol)
+    from xml file.
+
+    It returns dictionary like this:
+    {1: {'avatar_url':'https://example.com:443/api/images/1',
+        {'name': 'John Doe'}}
+    """
+    try:
+        tree = etree.parse(app.config['USERS_XML'])
+    except IOError:
+        log.debug("Error reading xml file from config.", exc_info=True)
+        return {}
+
+    root = tree.getroot()
+
+    host = root.xpath("/intranet/server/host")[0].text
+    port = root.xpath("/intranet/server/port")[0].text
+    protocol = root.xpath("/intranet/server/protocol")[0].text
+
+    host_url = ''.join([protocol, '://', host, ':', port, '/'])
+
+    users_data = root.xpath("/intranet/users")[0]
+    users = {}
+
+    for user in users_data.iter("user"):
+        user_id = user.get('id')
+        user_name = user.findtext("name")
+        user_avatar = urljoin(host_url,
+                              user.findtext("avatar"))
+
+        users[int(user_id)] = {'name': user_name,
+                               'avatar_url': user_avatar}
+    return users
+
+
 def cache(time_in_sec):
     """
-    Create cache decorator for get_data function.
+    Creates cache decorator.
     """
     def wrap(function):
-        update_diff = time_in_sec
-        cache_last_update = time.time()
         lock = threading.Lock()
+        function._cache = {
+            #'data': '',
+            #'timeout': datetime.datetime,
+        }
 
+        @wraps(function)
         def inner(*args, **kwargs):
-            lock.acquire()
+            with lock:
+                if 'data' in function._cache:
+                    data = function._cache['data']
+                    timeout = function._cache['timeout']
+                    if datetime.now() < timeout:
+                        return data
 
-            global user_data_cache, cache_last_update
-
-            if not user_data_cache:
-                user_data_cache = function()
-
-            current_time = time.time()
-            diff = current_time - cache_last_update
-
-            if diff > update_diff:
-                cache_last_update = time.time()
-                user_data_cache = function()
-            lock.release()
-            return user_data_cache
+                data = function(*args, **kwargs)
+                timeout = datetime.now() + timedelta(seconds=time_in_sec)
+                function._cache['data'] = data
+                function._cache['timeout'] = timeout
+                return data
         return inner
     return wrap
 

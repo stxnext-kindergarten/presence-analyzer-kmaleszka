@@ -30,6 +30,8 @@
     {% endblock %}
 
     {% block javascript %}
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/findAvatarInJSON.js') }}"></script>
     {% endblock %}
 </head>
 
@@ -43,11 +45,15 @@
         </div>
         {% block content %}
         <div id="content">
-        <h2>{% block content_header %}{% endblock %}</h2>
+        <h2>{% block content_header %}{% endblock %}
+        </h2>
         <p>
             <select id="user_id" style="display: none">
                 <option value="">--</option>
             </select>
+            <div id="avatar_div" style="display: none">
+                <img src=""/>
+            </div>
             <div id="chart_div" style="display: none">
             </div>
             <div id="loading">
