@@ -8,7 +8,7 @@ from flask import redirect, render_template, url_for
 
 from presence_analyzer.main import app
 from presence_analyzer.utils import (jsonify, get_data, mean, group_by_weekday,
-                                     group_by_start_end)
+                                     group_by_start_end, get_users_from_xml)
 
 import logging
 log = logging.getLogger(__name__)  # pylint: disable-msg=C0103
@@ -44,6 +44,18 @@ def presence_start_end_page():
     Renders start-end presences page.
     """
     return render_template('presence_start_end.html')
+
+
+@app.route('/api/v2/users', methods=['GET'])
+@jsonify
+def users_view_v2():
+    """
+    Users listing for dropdown, new api.
+    """
+    data = get_users_from_xml()
+    return [{'user_id': i, 'name': data[i]['name'],
+            'avatar_url': data[i]['avatar_url']}
+            for i in data.keys()]
 
 
 @app.route('/api/v1/users', methods=['GET'])

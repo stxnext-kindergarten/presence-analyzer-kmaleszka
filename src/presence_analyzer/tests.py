@@ -15,6 +15,10 @@ TEST_DATA_CSV = os.path.join(
 )
 
 
+TEST_USERS_XML = os.path.join(
+    os.path.dirname(__file__), '..', '..', 'runtime', 'data', 'test_users.xml')
+
+
 # pylint: disable=E1103
 class PresenceAnalyzerViewsTestCase(unittest.TestCase):
     """
@@ -26,6 +30,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         Before each test, set up a environment.
         """
         main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
+        main.app.config.update({'USERS_XML': TEST_USERS_XML})
         self.client = main.app.test_client()
         self.weekdays = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
         self.pageTitle = '<title>Presence analyzer</title>'
@@ -78,6 +83,19 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         data = json.loads(resp.data)
         self.assertEqual(len(data), 2)
         self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
+
+    def test_api_users_v2(self):
+        """
+        Test new api users listing.
+        """
+        resp = self.client.get('/api/v2/users')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content_type, 'application/json')
+        data = json.loads(resp.data)
+        self.assertEqual(len(data), 2)
+        self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'Maciej Z.',
+                             'avatar_url':
+            'https://intranet.stxnext.pl:443/api/images/users/10'})
 
     def test_api_mean_time_weekday(self):
         """
@@ -147,6 +165,7 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         Before each test, set up a environment.
         """
         main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
+        main.app.config.update({'USERS_XML': TEST_USERS_XML})
 
     def tearDown(self):
         """
@@ -166,6 +185,19 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         self.assertItemsEqual(data[10][sample_date].keys(), ['start', 'end'])
         self.assertEqual(data[10][sample_date]['start'],
                          datetime.time(9, 39, 5))
+
+    def test_get_users_from_xml(self):
+        """
+        Test parsing of user xml file.
+        """
+        data = utils.get_users_from_xml()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(len(data), 2)
+        self.assertItemsEqual(data.keys(), [10, 11])
+        for user in data.itervalues():
+            self.assertEqual(len(user), 2, msg=str(user))
+            self.assertItemsEqual(user.keys(), ['avatar_url', 'name'],
+                                  msg=str(user))
 
     def test_group_by_weekday(self):
         """

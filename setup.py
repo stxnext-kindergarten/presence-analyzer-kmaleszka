@@ -27,11 +27,12 @@ setup(
     install_requires=[
         'setuptools',
         'Flask',
+        'lxml',
     ],
     entry_points="""
     [console_scripts]
     flask-ctl = presence_analyzer.script:run
-
+    get-xml = presence_analyzer.script:get_xml
     [paste.app_factory]
     main = presence_analyzer.script:make_app
     debug = presence_analyzer.script:make_debug
