@@ -4,7 +4,8 @@ Defines views.
 """
 
 import calendar
-from flask import redirect, render_template, url_for
+import locale
+from flask import redirect, render_template
 
 from presence_analyzer.main import app
 from presence_analyzer.utils import (jsonify, get_data, mean, group_by_weekday,
@@ -12,6 +13,8 @@ from presence_analyzer.utils import (jsonify, get_data, mean, group_by_weekday,
 
 import logging
 log = logging.getLogger(__name__)  # pylint: disable-msg=C0103
+
+locale.setlocale(locale.LC_COLLATE, 'pl_PL.UTF-8')
 
 
 @app.route('/')
@@ -52,10 +55,13 @@ def users_view_v2():
     """
     Users listing for dropdown, new api.
     """
+
     data = get_users_from_xml()
-    return [{'user_id': i, 'name': data[i]['name'],
-            'avatar_url': data[i]['avatar_url']}
-            for i in data.keys()]
+    result = [{'user_id': i, 'name': data[i]['name'],
+              'avatar_url': data[i]['avatar_url']}
+              for i in data.keys()]
+    result.sort(key=lambda user: user['name'], cmp=locale.strcoll)
+    return result
 
 
 @app.route('/api/v1/users', methods=['GET'])
