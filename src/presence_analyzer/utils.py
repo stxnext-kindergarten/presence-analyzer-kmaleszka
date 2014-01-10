@@ -6,7 +6,9 @@ Helper functions used in views.
 import csv
 from json import dumps
 from functools import wraps
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
+import threading
 from urlparse import urljoin
 
 from flask import Response
@@ -63,10 +65,39 @@ def get_users_from_xml():
 
         users[int(user_id)] = {'name': user_name,
                                'avatar_url': user_avatar}
-
     return users
 
 
+def cache(time_in_sec):
+    """
+    Creates cache decorator.
+    """
+    def wrap(function):
+        lock = threading.Lock()
+        function._cache = {
+            #'data': '',
+            #'timeout': datetime.datetime,
+        }
+
+        @wraps(function)
+        def inner(*args, **kwargs):
+            with lock:
+                if 'data' in function._cache:
+                    data = function._cache['data']
+                    timeout = function._cache['timeout']
+                    if datetime.now() < timeout:
+                        return data
+
+                data = function(*args, **kwargs)
+                timeout = datetime.now() + timedelta(seconds=time_in_sec)
+                function._cache['data'] = data
+                function._cache['timeout'] = timeout
+                return data
+        return inner
+    return wrap
+
+
+@cache(600)
 def get_data():
     """
     Extracts presence data from CSV file and groups it by user_id.
