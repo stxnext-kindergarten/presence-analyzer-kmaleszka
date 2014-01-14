@@ -81,7 +81,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
-        self.assertEqual(len(data), 2)
+        self.assertEqual(len(data), 4)
         self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
 
     def test_api_users_v2(self):
@@ -92,10 +92,14 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
-        self.assertEqual(len(data), 2)
-        self.assertDictEqual(data[0], {u'user_id': 11, u'name': u'Maciej D.',
-                             'avatar_url':
-            'https://intranet.stxnext.pl:443/api/images/users/11'})
+        self.assertEqual(len(data), 4)
+        users_id = [124, 154, 11, 10]
+        users_names = [u'Dawid Ż.', u'Łukasz K.', u'Maciej D.', u'Maciej Z.']
+        for uid, name, pos in zip(users_id, users_names, range(4)):
+            self.assertDictEqual(data[pos], {u'user_id': uid, u'name': name,
+                                 'avatar_url':
+            'https://intranet.stxnext.pl:443/api/images/users/{0}'
+                                 .format(uid)}, msg=(uid, name, pos))
 
     def test_api_mean_time_weekday(self):
         """
@@ -179,7 +183,7 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         """
         data = utils.get_data()
         self.assertIsInstance(data, dict)
-        self.assertItemsEqual(data.keys(), [10, 11])
+        self.assertItemsEqual(data.keys(), [10, 11, 124, 154])
         sample_date = datetime.date(2013, 9, 10)
         self.assertIn(sample_date, data[10])
         self.assertItemsEqual(data[10][sample_date].keys(), ['start', 'end'])
@@ -192,8 +196,8 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         """
         data = utils.get_users_from_xml()
         self.assertIsInstance(data, dict)
-        self.assertEqual(len(data), 2)
-        self.assertItemsEqual(data.keys(), [10, 11])
+        self.assertEqual(len(data), 4)
+        self.assertItemsEqual(data.keys(), [10, 11, 124, 154])
         for user in data.itervalues():
             self.assertEqual(len(user), 2, msg=str(user))
             self.assertItemsEqual(user.keys(), ['avatar_url', 'name'],
