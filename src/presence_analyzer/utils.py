@@ -42,7 +42,7 @@ def get_users_from_xml():
     """
     try:
         tree = etree.parse(app.config['USERS_XML'])
-    except IOError:
+    except (IOError, etree.XMLSyntaxError):
         log.debug("Error reading xml file from config.", exc_info=True)
         return {}
 
@@ -56,15 +56,19 @@ def get_users_from_xml():
 
     users_data = root.xpath("/intranet/users")[0]
     users = {}
+    csv_data = get_data()
 
     for user in users_data.iter("user"):
-        user_id = user.get('id')
+        user_id = int(user.get('id'))
+        if user_id not in csv_data:
+            log.debug("User %s not found in csv file!", user_id)
+            continue
         user_name = user.findtext("name")
         user_avatar = urljoin(host_url,
                               user.findtext("avatar"))
 
-        users[int(user_id)] = {'name': user_name,
-                               'avatar_url': user_avatar}
+        users[user_id] = {'name': user_name,
+                          'avatar_url': user_avatar}
     return users
 
 
