@@ -96,10 +96,11 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         users_id = [124, 154, 11, 10]
         users_names = [u'Dawid Ż.', u'Łukasz K.', u'Maciej D.', u'Maciej Z.']
         for uid, name, pos in zip(users_id, users_names, range(4)):
-            self.assertDictEqual(data[pos], {u'user_id': uid, u'name': name,
-                                 'avatar_url':
-            'https://intranet.stxnext.pl:443/api/images/users/{0}'
-                                 .format(uid)}, msg=(uid, name, pos))
+            self.assertDictEqual(data[pos], {
+                                 'user_id': uid,
+                                 'name': name,
+                                 'avatar_url': 'https://intranet.stxnext.pl:443/api/images/users/{0}'.format(uid),
+                                 }, msg=(uid, name, pos))
 
     def test_api_mean_time_weekday(self):
         """
