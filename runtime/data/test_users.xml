@@ -14,5 +14,13 @@
             <avatar>/api/images/users/10</avatar>
             <name>Maciej Z.</name>
         </user>
+	<user id="154">
+            <avatar>/api/images/users/154</avatar>
+            <name>Łukasz K.</name>
+        </user>
+	<user id="124">
+            <avatar>/api/images/users/124</avatar>
+            <name>Dawid Ż.</name>
+        </user>
     </users>
 </intranet>
